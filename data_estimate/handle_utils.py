@@ -1,6 +1,5 @@
 # scorecard analysis
 # 20190815
-# lh create
 
 import numpy as np
 import pandas as pd

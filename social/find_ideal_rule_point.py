@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 
 # 找到特征的最佳切割点
 
-features = ['model_score_pd7', 'model_score_pd7_m'
+features = ['阿福分', 'ALi_score_nt'
             ]
 
-label_col = 'slpd7'
+label_col = 'label'
 
 
-tb = pd.read_csv('data/all_online_model_score_map.csv')
+tb = pd.read_csv('D:/智度小贷/ali_afu_feature.csv')
 
 for feature in features :
     feature_label = []

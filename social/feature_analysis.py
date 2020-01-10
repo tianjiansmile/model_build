@@ -145,9 +145,45 @@ def concat_data():
     print(new.shape)
     new.to_csv('jiaka_social_fea.csv',encoding='utf-8',index=False)
 
+def data_split(allData, product_id):
+    allData['split1'] = allData['product_id'].apply(
+        lambda x: 'oot' if x == product_id else 'train')
+    for name, group in allData.groupby('split1'):
+        if name is 'oot':
+            oot1 = group
+
+    oot1.drop(['split1'], axis=1, inplace=True)
+    return oot1
+
+def sample_filter():
+    sample_df = pd.read_csv('D:/三方数据测试/int_20w_new.csv', encoding='utf8')
+    sample_df['split1'] = sample_df['product_name'].apply(
+        lambda x: 'oot' if x == '嘉卡' or x == '嘉优贷' else 'train')
+    for name, group in sample_df.groupby('split1'):
+        if name is 'oot':
+            oot1 = group
+
+    oot1.drop(['split1'], axis=1, inplace=True)
+
+    print(oot1.shape)
+
+    oot1['split1'] = oot1['create_time'].apply(
+        lambda x: 'oot' if str(x) >= '20190201' else 'train')
+    for name, group in sample_df.groupby('split1'):
+        if name is 'oot':
+            oot2 = group
+
+    oot2.drop(['split1'], axis=1, inplace=True)
+    print(oot2.shape)
+    return oot1
+
+
+
 if __name__ == '__main__':
     # data_check()
     # data_loan_check()
 
-    concat_data()
+    # concat_data()
+
+    sample_filter()
 

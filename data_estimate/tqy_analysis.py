@@ -22,8 +22,10 @@ import seaborn as sns
 from data_estimate.handle_utils import analysis
 exam = analysis()
 #######################################数据预处理#######################################
-df_org=pd.read_csv(r'data/lj_afu_tqy_merge.csv',encoding='utf8',low_memory=False)
+df_org=pd.read_csv(r'D:/三方数据测试/钛旗云/钛旗云测试/多头/tqy_2w_label.csv',encoding='utf8',low_memory=False)
 print(df_org.shape)
+
+df_org.drop(['risk_score:'], axis=1, inplace=True)
 
 # #数据类型查看
 # type=df_org.dtypes
@@ -32,17 +34,12 @@ print(df_org.shape)
 #缺失值查看
 missing_df = df_org.isnull().sum(axis =0).reset_index()
 fea_miss = pd.DataFrame(1-df_org.count()/df_org.shape[0]).reset_index()
-# fea_miss.to_csv(r'missing.csv')
+fea_miss.to_csv(r'missing.csv')
 #填充缺失值
 df_org=df_org.fillna(value=-1)
 fea_col = list(df_org.columns)
-df_org['label'] = df_org['pd7']
-dele_list = ['md5_id_num','product_name','create_time','label','order_id','overdue_days',
-             'Unnamed: 0','repay_date','m1','pd7','name','md5_mobile'
-             # ,'score'
-             # ,'互金_身份证1周内申请次数', '互金_身份证1月内申请平台数', '互金_身份证3月内申请次数', '互金_身份证3月内申请平台数', '互金_身份证6月内申请次数', '互金_身份证6月内申请平台数', '互金_身份证12月内申请次数', '互金_身份证12月内申请平台数',
-             # '圈团风险浓度', '疑似准入风险', 'risk_score:'
-             ]
+dele_list = ['app_date','id_card_encrypted','phonenum_encrypted','md5_id_num','name',\
+              'md5_num','label','product_name','create_time']
 for fea in dele_list:
     try:
         fea_col.remove(fea)
@@ -58,6 +55,7 @@ df_test=df_org[use_col]
 df_test.to_csv(r'df_test.csv')
 #产品列表
 pro_lst=list(set(df_org['product_name'].tolist()))
+# pro_lst = ['jiaka']
 
 ######################################单变量分析#######################################
  # 计算各变量IV值(不分产品)
@@ -353,13 +351,12 @@ for pro in pro_lst:
     temp_loc=int(len_model/10)*9
     #获取切片时间
     cut_time=df_pro_model.sort_values(by='create_time',ascending=True).iloc[temp_loc,:]['create_time']
-    # cut_time = 201906
     print(cut_time)
     # cut_time = pd.qcut(df_pro_model['create_time'], 10,retbins=True)
     df_model, df_time = splitbyTime(df_pro_model, 'create_time', cut_time)
     #训练集与验证集
     X_train, X_valid, y_train, y_valid = \
-    model_selection.train_test_split(np.array(df_pro_model[fea_col]),df_pro_model['label'].values,test_size=0.10,random_state=26,stratify=df_pro_model.label)
+    model_selection.train_test_split(np.array(df_pro_model[fea_col]),df_pro_model['label'].values,test_size=0.10,random_state=6,stratify=df_pro_model.label)
     print('训练集大小：{}，坏账率：{} '.format(X_train.shape[0], float(sum(y_train)/X_train.shape[0])))
     print('验证集大小：{}，坏账率：{} '.format(X_valid.shape[0], float(sum(y_valid)/X_valid.shape[0])))
     print('测试集大小：{}，坏账率：{} '.format(df_time.shape[0], float(sum(df_time.label)/df_time.shape[0])))
